@@ -21,11 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://localhost:27017/swissNoteUsers",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
+  process.env.MONGODB_URI || "mongodb://localhost:27017/swissNoteUsers"
 );
 
 const db = mongoose.connection;
