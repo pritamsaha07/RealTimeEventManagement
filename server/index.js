@@ -21,9 +21,16 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(
-  "mongodb+srv://sahapritam2002:QjudEsr14mkM4qOk@cluster0.agb2k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+  "mongodb+srv://sahapritam2002:QjudEsr14mkM4qOk@cluster0.agb2k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  {
+    ssl: true,
+    sslValidate: true,
+    sslCA: [fs.readFileSync("path/to/ca.pem")],
+    tls: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
 );
-
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 db.once("open", () => console.log("Connected to MongoDB"));
