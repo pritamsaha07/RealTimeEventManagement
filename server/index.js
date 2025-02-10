@@ -22,7 +22,7 @@ app.use(express.json());
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    "mongodb+srv://sahapritam2002:<QjudEsr14mkM4qOk>@cluster0.agb2k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://sahapritam2002:QjudEsr14mkM4qOk@cluster0.agb2k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
 const db = mongoose.connection;
