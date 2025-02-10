@@ -25,7 +25,7 @@ mongoose.connect(
   {
     ssl: true,
     sslValidate: true,
-    sslCA: [fs.readFileSync("path/to/ca.pem")],
+
     tls: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
