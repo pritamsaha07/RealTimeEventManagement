@@ -285,7 +285,6 @@ app.post("/api/events/:eventId/leave", authenticateToken, async (req, res) => {
   }
 });
 
-// Socket.IO Connection Handler
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
@@ -294,13 +293,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Graceful Shutdown
 process.on("SIGINT", async () => {
   try {
     await mongoose.connection.close();
