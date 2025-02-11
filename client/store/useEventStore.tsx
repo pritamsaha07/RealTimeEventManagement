@@ -10,7 +10,7 @@ const useEventStore = create<EventState>((set, get) => ({
   socket: null,
 
   initializeSocket: () => {
-    const socket = io("https://realtimeeventmanagement.onrender.com");
+    const socket = io("http://localhost:5000");
 
     socket.on("eventUpdated", ({ eventId, attendees }) => {
       get().updateEventAttendees(eventId, attendees);
@@ -42,7 +42,7 @@ const useEventStore = create<EventState>((set, get) => ({
       if (filters.endDate) queryParams.append("endDate", filters.endDate);
 
       const response = await fetch(
-        `https://realtimeeventmanagement.onrender.com/api/events?${queryParams}`
+        `http://localhost:5000/api/events?${queryParams}`
       );
       if (!response.ok) throw new Error("Failed to fetch events");
       const data = await response.json();
@@ -56,17 +56,14 @@ const useEventStore = create<EventState>((set, get) => ({
     const token = localStorage.getItem("token");
     if (!token) throw new Error("No authentication token found");
 
-    const response = await fetch(
-      "https://realtimeeventmanagement.onrender.com/api/events",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(eventData),
-      }
-    );
+    const response = await fetch("http://localhost:5000/api/events", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(eventData),
+    });
 
     if (!response.ok) {
       const error = await response.json();
@@ -83,7 +80,7 @@ const useEventStore = create<EventState>((set, get) => ({
     if (!token) throw new Error("No authentication token found");
 
     const response = await fetch(
-      `https://realtimeeventmanagement.onrender.com/api/events/${eventId}/join`,
+      `http://localhost:5000/api/events/${eventId}/join`,
       {
         method: "POST",
         headers: {
@@ -111,7 +108,7 @@ const useEventStore = create<EventState>((set, get) => ({
     if (!token) throw new Error("No authentication token found");
 
     const response = await fetch(
-      `https://realtimeeventmanagement.onrender.com/api/events/${eventId}/leave`,
+      `http://localhost:5000/api/events/${eventId}/leave`,
       {
         method: "POST",
         headers: {

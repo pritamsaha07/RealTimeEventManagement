@@ -28,21 +28,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  ssl: true,
-  tls: true,
-  tlsAllowInvalidCertificates: false,
-  tlsAllowInvalidHostnames: false,
-  tlsInsecure: false,
-};
-
 const connectWithRetry = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
+    await mongoose.connect("mongodb://localhost:27017/swissNoteUsers");
     console.log("MongoDB connected successfully");
   } catch (err) {
     console.error("MongoDB connection error:", err);
@@ -280,19 +268,16 @@ app.get("/api/events", async (req, res) => {
   }
 });
 
-// Create Event
 app.post("/api/events", authenticateToken, async (req, res) => {
   try {
     const { title, description, date, category } = req.body;
 
-    // Validation
     if (!title || !date || !category) {
       return res
         .status(400)
         .json({ error: "Title, date, and category are required" });
     }
 
-    // Create event
     const event = new Event({
       title,
       description,
@@ -303,13 +288,11 @@ app.post("/api/events", authenticateToken, async (req, res) => {
 
     await event.save();
 
-    // Populate event details
     const populatedEvent = await Event.findById(event._id)
       .populate("creator", "name email")
       .populate("attendees", "name email")
       .exec();
 
-    // Emit socket event
     io.emit("newEvent", populatedEvent);
 
     res.status(201).json(populatedEvent);
@@ -319,13 +302,11 @@ app.post("/api/events", authenticateToken, async (req, res) => {
   }
 });
 
-// Join Event
 app.post("/api/events/:eventId/join", authenticateToken, async (req, res) => {
   try {
     const { eventId } = req.params;
     const userId = req.user._id;
 
-    // Check existing attendance
     const existingAttendance = await Event.findOne({
       attendees: userId,
     }).exec();
@@ -336,7 +317,6 @@ app.post("/api/events/:eventId/join", authenticateToken, async (req, res) => {
       });
     }
 
-    // Find and update event
     const event = await Event.findById(eventId).exec();
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
@@ -347,13 +327,11 @@ app.post("/api/events/:eventId/join", authenticateToken, async (req, res) => {
       await event.save();
     }
 
-    // Populate event details
     const populatedEvent = await Event.findById(eventId)
       .populate("creator", "name email")
       .populate("attendees", "name email")
       .exec();
 
-    // Emit socket event
     io.emit("eventUpdated", {
       eventId,
       attendees: populatedEvent.attendees,
@@ -366,13 +344,11 @@ app.post("/api/events/:eventId/join", authenticateToken, async (req, res) => {
   }
 });
 
-// Leave Event
 app.post("/api/events/:eventId/leave", authenticateToken, async (req, res) => {
   try {
     const { eventId } = req.params;
     const userId = req.user._id;
 
-    // Find and update event
     const event = await Event.findById(eventId).exec();
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
@@ -383,13 +359,11 @@ app.post("/api/events/:eventId/leave", authenticateToken, async (req, res) => {
     );
     await event.save();
 
-    // Populate event details
     const populatedEvent = await Event.findById(eventId)
       .populate("creator", "name email")
       .populate("attendees", "name email")
       .exec();
 
-    // Emit socket event
     io.emit("eventUpdated", {
       eventId,
       attendees: populatedEvent.attendees,
@@ -402,7 +376,6 @@ app.post("/api/events/:eventId/leave", authenticateToken, async (req, res) => {
   }
 });
 
-// Socket.io Connection Handler
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
@@ -411,13 +384,11 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Graceful Shutdown
 process.on("SIGINT", async () => {
   try {
     await mongoose.connection.close();
